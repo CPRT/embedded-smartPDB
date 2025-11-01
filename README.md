@@ -40,15 +40,10 @@ VS Code will bug you about installing extensions. **Click "Install All"**
 ### 3. Build It
 
 ```bash
-# Generate compile_commands.json for linting
-pio run -t compiledb
-ln -s .pio/build/bluepill_f103c8/compile_commands.json compile_commands.json
-
-# Build the firmware
 pio run
 ```
 
-If it compiles, you're golden. ✨
+If it compiles, you're golden.
 
 ### 4. Flash It
 
