@@ -1,6 +1,8 @@
 # embedded-smartPDB
 > A clean, no-nonsense STM32 project setup using PlatformIO, STM32Cube HAL, and FreeRTOS. Because life's too short for bad embedded setups.
 
+![CI Status](https://github.com/CPRT/embedded-smartPDB/workflows/Full%20CI%20Check/badge.svg)
+
 ## What You're Getting
 
 - **STM32F103C8**
