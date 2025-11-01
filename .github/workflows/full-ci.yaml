@@ -1,0 +1,107 @@
+name: Full CI Check
+
+on:
+  push:
+    branches: [ main, develop, feature/** ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+      
+    - name: Cache PlatformIO
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.platformio
+          .pio
+        key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+        restore-keys: |
+          ${{ runner.os }}-pio-
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install PlatformIO
+      run: |
+        python -m pip install --upgrade pip
+        pip install platformio
+        
+    - name: Build firmware
+      run: pio run --verbose
+      
+    - name: Run static analysis
+      run: |
+        pio check --verbose --fail-on-defect=medium
+      continue-on-error: true
+      
+    - name: Generate size report
+      run: |
+        echo "## Firmware Size" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        pio run -t size 2>&1 | tee size_report.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        RAM_USAGE=$(grep "RAM:" size_report.txt | awk '{print $2}' || echo "0")
+        FLASH_USAGE=$(grep "Flash:" size_report.txt | awk '{print $2}' || echo "0")
+        
+        if [ "$RAM_USAGE" -gt "18000" ]; then
+          echo "**Warning**: RAM usage is high (${RAM_USAGE}/20480 bytes)" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "$FLASH_USAGE" -gt "60000" ]; then
+          echo "**Warning**: Flash usage is high (${FLASH_USAGE}/65536 bytes)" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+    - name: Upload firmware artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware-${{ github.sha }}
+        path: |
+          .pio/build/bluepill_f103c8/firmware.elf
+          .pio/build/bluepill_f103c8/firmware.bin
+          .pio/build/bluepill_f103c8/firmware.hex
+        retention-days: 30
+        
+    - name: Upload map file
+      uses: actions/upload-artifact@v4
+      with:
+        name: map-file-${{ github.sha }}
+        path: ./pio/build/bluepill_f103c8/firmware.map
+        retention-days: 7
+        
+    - name: Comment PR with build results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const sizeReport = fs.readFileSync('size_report.txt', 'utf8');
+          
+          const comment = `## Build Successful
+          
+          **Firmware Size:**
+          \`\`\`
+          ${sizeReport}
+          \`\`\`
+          
+          Artifacts are available in the workflow run.
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
