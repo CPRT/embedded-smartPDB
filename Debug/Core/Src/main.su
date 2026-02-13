@@ -1,0 +1,15 @@
+../Core/Src/main.c:101:6:HAL_I2C_ListenCpltCallback	16	static
+../Core/Src/main.c:106:6:HAL_I2C_AddrCallback	16	static
+../Core/Src/main.c:122:6:HAL_I2C_SlaveRxCpltCallback	16	static
+../Core/Src/main.c:142:6:HAL_I2C_SlaveTxCpltCallback	16	static
+../Core/Src/main.c:148:6:HAL_I2C_ErrorCallback	24	static
+../Core/Src/main.c:173:6:WriteRegs	16	static
+../Core/Src/main.c:190:6:WriteServos	4	static
+../Core/Src/main.c:196:6:WritePins	8	static
+../Core/Src/main.c:212:5:main	16	static
+../Core/Src/main.c:274:6:SystemClock_Config	72	static
+../Core/Src/main.c:313:13:MX_I2C1_Init	8	static
+../Core/Src/main.c:347:13:MX_TIM2_Init	48	static
+../Core/Src/main.c:400:13:MX_TIM3_Init	48	static
+../Core/Src/main.c:449:13:MX_GPIO_Init	32	static
+../Core/Src/main.c:503:6:Error_Handler	4	static,ignoring_inline_asm
