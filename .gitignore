@@ -1,8 +1,15 @@
-.pio
+# CubeIDE settings
+.settings/
 
-# pio generated
-.vscode/c_cpp_properties.json
-.vscode/launch.json
+# CubeIDE metadata
+.metadata/
+
+# Builds
+Debug/
+debug/
+Release/
+release
+
 
 # Prerequisites
 *.d
